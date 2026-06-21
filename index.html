@@ -3,161 +3,750 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Deniz Sayaç</title>
+  <title>Deniz · Timeline</title>
+  <meta name="description" content="Deniz'in kişisel timeline sayfası." />
   <style>
     :root {
       color-scheme: dark;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #070913;
+      --text: #f7f4ef;
+      --muted: rgba(247, 244, 239, 0.68);
+      --soft: rgba(247, 244, 239, 0.12);
+      --softer: rgba(247, 244, 239, 0.08);
+      --glass: rgba(255, 255, 255, 0.09);
+      --glass-strong: rgba(255, 255, 255, 0.15);
+      --accent: #8fd4ff;
+      --accent-2: #f3b78d;
+      --danger: #ff8585;
+      --radius: 28px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at top, #1d2433 0%, #0b0f17 55%, #05070b 100%);
-      color: #f7f4ef;
-      padding: 24px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(143, 212, 255, 0.26), transparent 32rem),
+        radial-gradient(circle at 92% 14%, rgba(243, 183, 141, 0.19), transparent 26rem),
+        linear-gradient(150deg, #101522 0%, #070913 48%, #03040a 100%);
+      color: var(--text);
+      overflow-x: hidden;
     }
 
-    main {
-      width: min(680px, 100%);
-      padding: 36px 28px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.07);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-      text-align: center;
-      backdrop-filter: blur(18px);
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent 72%);
+    }
+
+    button, textarea, input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .shell {
+      width: min(780px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 22px 18px 112px;
+      position: relative;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin: 12px 0 18px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.04)),
+        radial-gradient(circle at top left, rgba(143,212,255,0.58), transparent 62%);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      letter-spacing: -0.06em;
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
     }
 
     .eyebrow {
-      margin: 0 0 10px;
-      color: #f3b78d;
-      font-weight: 700;
+      margin: 0 0 5px;
+      color: var(--accent-2);
+      font-size: 0.78rem;
+      font-weight: 800;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      font-size: 0.78rem;
     }
 
     h1 {
-      margin: 0 0 22px;
-      font-size: clamp(2rem, 7vw, 4rem);
-      line-height: 1;
+      margin: 0;
+      font-size: clamp(2.25rem, 8vw, 4.65rem);
+      line-height: 0.92;
+      letter-spacing: -0.08em;
     }
 
-    #countdown {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin: 26px 0;
+    .sub {
+      margin: 12px 0 0;
+      max-width: 38rem;
+      color: var(--muted);
+      line-height: 1.55;
     }
 
-    .unit {
-      padding: 18px 10px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.09);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .pill-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 0 15px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 14px 45px rgba(0,0,0,0.25);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+      white-space: nowrap;
     }
 
-    .value {
+    .pill-button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .panel {
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(155deg, rgba(255,255,255,0.13), rgba(255,255,255,0.045)),
+        rgba(255, 255, 255, 0.055);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px) saturate(145%);
+      -webkit-backdrop-filter: blur(22px) saturate(145%);
+    }
+
+    .composer {
+      display: none;
+      padding: 16px;
+      margin: 22px 0 14px;
+    }
+
+    .composer.is-visible {
       display: block;
-      font-size: clamp(2rem, 9vw, 4.2rem);
-      font-weight: 800;
+    }
+
+    .composer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #b9ecff;
+      font-weight: 750;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 112px;
+      resize: vertical;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      padding: 15px;
+      color: var(--text);
+      background: rgba(0,0,0,0.18);
+      outline: none;
+      line-height: 1.5;
+    }
+
+    textarea:focus, input:focus {
+      border-color: rgba(143, 212, 255, 0.55);
+      box-shadow: 0 0 0 4px rgba(143, 212, 255, 0.10);
+    }
+
+    .composer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .count {
+      color: var(--muted);
       font-variant-numeric: tabular-nums;
     }
 
-    .label {
+    .primary {
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 999px;
+      color: #061018;
+      font-weight: 900;
+      background: linear-gradient(135deg, #d9f3ff, #8fd4ff 58%, #f3b78d);
+      box-shadow: 0 16px 38px rgba(143, 212, 255, 0.18);
+    }
+
+    .primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .view {
+      display: none;
+      animation: rise 260ms ease both;
+    }
+
+    .view.is-active {
       display: block;
-      margin-top: 6px;
-      color: rgba(247, 244, 239, 0.72);
-      font-size: 0.85rem;
     }
 
-    #message {
-      min-height: 1.5em;
-      margin: 18px 0 0;
-      color: rgba(247, 244, 239, 0.82);
-      font-size: 1.05rem;
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .target {
-      margin: 16px 0 0;
-      color: rgba(247, 244, 239, 0.62);
-      font-size: 0.95rem;
+    .timeline {
+      display: grid;
+      gap: 13px;
+      margin-top: 16px;
     }
 
-    @media (max-width: 520px) {
-      #countdown {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .post {
+      position: relative;
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .post::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, rgba(255,255,255,0.11), transparent 38%);
+      opacity: 0.52;
+    }
+
+    .post-head, .post-body, .post-foot {
+      position: relative;
+      z-index: 1;
+    }
+
+    .post-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .who {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mini-avatar {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-weight: 900;
+    }
+
+    .name {
+      font-weight: 850;
+      letter-spacing: -0.02em;
+    }
+
+    .handle, time {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .post-body {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.58;
+      font-size: 1.02rem;
+    }
+
+    .post-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .delete {
+      display: none;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--danger);
+      background: rgba(255, 133, 133, 0.10);
+      border: 1px solid rgba(255, 133, 133, 0.22);
+    }
+
+    .is-admin .delete {
+      display: inline-flex;
+    }
+
+    .empty, .notice {
+      padding: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .about-card {
+      padding: 22px;
+      line-height: 1.6;
+    }
+
+    .about-card h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 6vw, 3.1rem);
+      letter-spacing: -0.06em;
+    }
+
+    .facts {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .fact {
+      padding: 14px 15px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid rgba(255,255,255,0.09);
+      color: rgba(247,244,239,0.78);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0,0,0,0.54);
+      z-index: 30;
+    }
+
+    .modal.is-open {
+      display: grid;
+    }
+
+    .login-box {
+      width: min(420px, 100%);
+      padding: 20px;
+    }
+
+    .login-box h2 {
+      margin: 0 0 8px;
+      letter-spacing: -0.04em;
+    }
+
+    .login-box p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    input {
+      width: 100%;
+      height: 48px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 17px;
+      padding: 0 14px;
+      color: var(--text);
+      background: rgba(0,0,0,0.24);
+      outline: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .ghost {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .status {
+      min-height: 1.3em;
+      margin-top: 12px;
+      color: var(--accent-2);
+      font-size: 0.92rem;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 20;
+      width: min(420px, calc(100% - 28px));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 9px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 28px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)),
+        rgba(15, 20, 32, 0.68);
+      box-shadow: 0 18px 70px rgba(0,0,0,0.44);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+    }
+
+    .nav-item {
+      height: 50px;
+      border-radius: 21px;
+      background: transparent;
+      color: rgba(247,244,239,0.72);
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      grid-auto-flow: column;
+      gap: 8px;
+    }
+
+    .nav-item.is-active {
+      color: #071018;
+      background: rgba(255,255,255,0.86);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.55), 0 10px 30px rgba(255,255,255,0.12);
+    }
+
+    @media (max-width: 560px) {
+      .shell { padding-inline: 14px; }
+      .hero { align-items: stretch; flex-direction: column; }
+      .pill-button { align-self: flex-start; }
+      .post { padding: 16px; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <p class="eyebrow">Deniz için sayaç</p>
-    <h1>20:25'e kalan süre</h1>
+  <div class="shell">
+    <header class="hero">
+      <div>
+        <div class="brand">
+          <div class="avatar">D</div>
+          <div>
+            <p class="eyebrow">kişisel akış</p>
+            <h1>Deniz</h1>
+          </div>
+        </div>
+        <p class="sub">Kısa notlar, anlık düşünceler ve küçük güncellemeler. Paylaşım yetkisi sadece admin hesabında.</p>
+      </div>
+      <button class="pill-button" id="adminButton" type="button">🔐 Admin girişi</button>
+    </header>
 
-    <section id="countdown" aria-live="polite">
-      <div class="unit"><span class="value" id="days">00</span><span class="label">Gün</span></div>
-      <div class="unit"><span class="value" id="hours">00</span><span class="label">Saat</span></div>
-      <div class="unit"><span class="value" id="minutes">00</span><span class="label">Dakika</span></div>
-      <div class="unit"><span class="value" id="seconds">00</span><span class="label">Saniye</span></div>
+    <section class="composer panel" id="composer" aria-label="Yeni paylaşım">
+      <div class="composer-top">
+        <span class="admin-badge">✅ Admin modu açık</span>
+        <button class="ghost" id="logoutButton" type="button">Çıkış</button>
+      </div>
+      <textarea id="postInput" maxlength="280" placeholder="Ne paylaşalım Deniz? 280 karakterlik net bir şey yaz."></textarea>
+      <div class="composer-actions">
+        <span class="count"><span id="charCount">0</span>/280</span>
+        <button class="primary" id="postButton" type="button" disabled>Paylaş</button>
+      </div>
+      <div class="status" id="composerStatus"></div>
     </section>
 
-    <p id="message">Sayaç çalışıyor ⏱️</p>
-    <p class="target">Bitiş: 21 Haziran 2026, 20:25 · İstanbul saati</p>
-  </main>
+    <main>
+      <section class="view is-active" id="homeView">
+        <div class="timeline" id="timeline" aria-live="polite">
+          <div class="notice panel">Timeline yükleniyor…</div>
+        </div>
+      </section>
+
+      <section class="view" id="aboutView">
+        <article class="about-card panel">
+          <p class="eyebrow">hakkında</p>
+          <h2>Deniz kim?</h2>
+          <p>Ben Deniz. Tıp fakültesi öğrencisiyim; planlı yaşamayı, gezmeyi, yüzmeyi ve güzel yemek keşfetmeyi severim.</p>
+          <div class="facts">
+            <div class="fact">📍 İstanbul ve Malatya arasında mekik dokuyan biri.</div>
+            <div class="fact">🗓️ Gününü düzene sokmayı sever; plansızlık bazen fazla kaotik.</div>
+            <div class="fact">💛💙 Fenerbahçe tarafı net. Bu konuda tartışma kısa sürer.</div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Alt menü">
+    <button class="nav-item is-active" data-view="homeView" type="button">🏠 Ana sayfa</button>
+    <button class="nav-item" data-view="aboutView" type="button">👤 Hakkında</button>
+  </nav>
+
+  <div class="modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <form class="login-box panel" id="loginForm">
+      <h2 id="loginTitle">Admin girişi</h2>
+      <p>Paylaşım yapma yetkisi sunucu tarafında doğrulanır. Şifre tarayıcıya kaydedilmez.</p>
+      <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Admin şifresi" required />
+      <div class="modal-actions">
+        <button class="ghost" id="closeLogin" type="button">Kapat</button>
+        <button class="primary" type="submit">Giriş yap</button>
+      </div>
+      <div class="status" id="loginStatus"></div>
+    </form>
+  </div>
 
   <script>
-    const target = new Date("2026-06-21T20:25:00+03:00").getTime();
-
+    const tokenKey = "deniz_admin_token";
     const els = {
-      days: document.getElementById("days"),
-      hours: document.getElementById("hours"),
-      minutes: document.getElementById("minutes"),
-      seconds: document.getElementById("seconds"),
-      message: document.getElementById("message")
+      body: document.body,
+      adminButton: document.getElementById("adminButton"),
+      composer: document.getElementById("composer"),
+      logoutButton: document.getElementById("logoutButton"),
+      postInput: document.getElementById("postInput"),
+      postButton: document.getElementById("postButton"),
+      charCount: document.getElementById("charCount"),
+      composerStatus: document.getElementById("composerStatus"),
+      timeline: document.getElementById("timeline"),
+      loginModal: document.getElementById("loginModal"),
+      loginForm: document.getElementById("loginForm"),
+      passwordInput: document.getElementById("passwordInput"),
+      closeLogin: document.getElementById("closeLogin"),
+      loginStatus: document.getElementById("loginStatus")
     };
 
-    function pad(number) {
-      return String(number).padStart(2, "0");
+    function getToken() {
+      return sessionStorage.getItem(tokenKey);
     }
 
-    function updateCountdown() {
-      const now = Date.now();
-      const diff = target - now;
+    function setAdminMode(isAdmin) {
+      els.body.classList.toggle("is-admin", isAdmin);
+      els.composer.classList.toggle("is-visible", isAdmin);
+      els.adminButton.textContent = isAdmin ? "🛡️ Admin açık" : "🔐 Admin girişi";
+    }
 
-      if (diff <= 0) {
-        els.days.textContent = "00";
-        els.hours.textContent = "00";
-        els.minutes.textContent = "00";
-        els.seconds.textContent = "00";
-        els.message.textContent = "Süre doldu. Bitti reis ✅";
-        document.title = "Sayaç bitti";
-        clearInterval(timer);
+    function formatDate(value) {
+      return new Intl.DateTimeFormat("tr-TR", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Europe/Istanbul"
+      }).format(new Date(value));
+    }
+
+    function escapeText(text) {
+      return String(text || "");
+    }
+
+    function renderPosts(posts) {
+      if (!posts.length) {
+        els.timeline.innerHTML = '<div class="empty panel">Henüz paylaşım yok. İlk postu admin olarak sen atıyorsun, racon böyle. ✍️</div>';
         return;
       }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-
-      els.days.textContent = pad(days);
-      els.hours.textContent = pad(hours);
-      els.minutes.textContent = pad(minutes);
-      els.seconds.textContent = pad(seconds);
-      document.title = `${pad(hours)}:${pad(minutes)}:${pad(seconds)} kaldı`;
+      els.timeline.innerHTML = "";
+      for (const post of posts) {
+        const article = document.createElement("article");
+        article.className = "post panel";
+        article.innerHTML = `
+          <div class="post-head">
+            <div class="who">
+              <div class="mini-avatar">D</div>
+              <div>
+                <div class="name">Deniz</div>
+                <div class="handle">@itsmdeniz</div>
+              </div>
+            </div>
+            <time datetime="${post.createdAt}">${formatDate(post.createdAt)}</time>
+          </div>
+          <div class="post-body"></div>
+          <div class="post-foot">
+            <span>Timeline postu</span>
+            <button class="delete" type="button" data-id="${post.id}">Sil</button>
+          </div>
+        `;
+        article.querySelector(".post-body").textContent = escapeText(post.content);
+        els.timeline.appendChild(article);
+      }
     }
 
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
+    async function api(path, options = {}) {
+      const headers = new Headers(options.headers || {});
+      headers.set("Accept", "application/json");
+      if (options.body) headers.set("Content-Type", "application/json");
+      const token = getToken();
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+
+      const response = await fetch(path, { ...options, headers });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "İşlem başarısız.");
+      return data;
+    }
+
+    async function loadTimeline() {
+      try {
+        const data = await api("/api/timeline");
+        renderPosts(data.posts || []);
+      } catch (error) {
+        els.timeline.innerHTML = `<div class="notice panel">Timeline yüklenemedi: ${error.message}</div>`;
+      }
+    }
+
+    function updateComposerState() {
+      const length = els.postInput.value.trim().length;
+      els.charCount.textContent = String(els.postInput.value.length);
+      els.postButton.disabled = length === 0 || els.postInput.value.length > 280;
+    }
+
+    els.adminButton.addEventListener("click", () => {
+      if (getToken()) {
+        setAdminMode(true);
+        return;
+      }
+      els.loginModal.classList.add("is-open");
+      els.passwordInput.focus();
+    });
+
+    els.closeLogin.addEventListener("click", () => {
+      els.loginModal.classList.remove("is-open");
+      els.loginStatus.textContent = "";
+      els.passwordInput.value = "";
+    });
+
+    els.loginModal.addEventListener("click", (event) => {
+      if (event.target === els.loginModal) els.closeLogin.click();
+    });
+
+    els.loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      els.loginStatus.textContent = "Kontrol ediliyor…";
+
+      try {
+        const data = await api("/api/admin-login", {
+          method: "POST",
+          body: JSON.stringify({ password: els.passwordInput.value })
+        });
+        sessionStorage.setItem(tokenKey, data.token);
+        setAdminMode(true);
+        els.loginModal.classList.remove("is-open");
+        els.passwordInput.value = "";
+        els.loginStatus.textContent = "";
+      } catch (error) {
+        els.loginStatus.textContent = error.message;
+      }
+    });
+
+    els.logoutButton.addEventListener("click", () => {
+      sessionStorage.removeItem(tokenKey);
+      setAdminMode(false);
+      els.composerStatus.textContent = "Çıkış yapıldı.";
+    });
+
+    els.postInput.addEventListener("input", updateComposerState);
+
+    els.postButton.addEventListener("click", async () => {
+      const content = els.postInput.value.trim();
+      if (!content) return;
+
+      els.postButton.disabled = true;
+      els.composerStatus.textContent = "Paylaşılıyor…";
+
+      try {
+        await api("/api/timeline", {
+          method: "POST",
+          body: JSON.stringify({ content })
+        });
+        els.postInput.value = "";
+        updateComposerState();
+        els.composerStatus.textContent = "Paylaşıldı. Timeline'a düştü ✅";
+        await loadTimeline();
+      } catch (error) {
+        els.composerStatus.textContent = error.message;
+        if (/oturum|token|yetki/i.test(error.message)) {
+          sessionStorage.removeItem(tokenKey);
+          setAdminMode(false);
+        }
+      } finally {
+        updateComposerState();
+      }
+    });
+
+    els.timeline.addEventListener("click", async (event) => {
+      const button = event.target.closest(".delete");
+      if (!button) return;
+
+      try {
+        await api(`/api/timeline?id=${encodeURIComponent(button.dataset.id)}`, { method: "DELETE" });
+        await loadTimeline();
+      } catch (error) {
+        els.composerStatus.textContent = error.message;
+      }
+    });
+
+    document.querySelectorAll(".nav-item").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("is-active"));
+        document.querySelectorAll(".view").forEach((view) => view.classList.remove("is-active"));
+        button.classList.add("is-active");
+        document.getElementById(button.dataset.view).classList.add("is-active");
+      });
+    });
+
+    setAdminMode(Boolean(getToken()));
+    updateComposerState();
+    loadTimeline();
   </script>
 </body>
 </html>
