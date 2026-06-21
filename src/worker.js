@@ -1,6 +1,8 @@
 const POSTS_KEY = "timeline:posts";
 const MAX_POST_LENGTH = 280;
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7;
+const LOGIN_WINDOW_SECONDS = 60 * 10;
+const MAX_LOGIN_ATTEMPTS = 8;
 
 const securityHeaders = {
   "X-Content-Type-Options": "nosniff",
@@ -20,7 +22,7 @@ const securityHeaders = {
 };
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
     try {
@@ -41,30 +43,39 @@ export default {
       }
 
       if (url.pathname.startsWith("/api/")) {
-        return json({ error: "Endpoint bulunamadı." }, 404);
+        return withSecurityHeaders(json({ error: "Endpoint bulunamadı." }, 404));
       }
 
       const assetResponse = await env.ASSETS.fetch(request);
       return withSecurityHeaders(assetResponse);
     } catch (error) {
       console.error(error);
+
+      if (error instanceof HttpError) {
+        return withSecurityHeaders(json({ error: error.message }, error.status));
+      }
+
       return withSecurityHeaders(json({ error: "Sunucu tarafında beklenmeyen bir hata oldu." }, 500));
     }
   }
 };
 
 async function handleAdminLogin(request, env) {
+  assertEnv(env);
+
+  const clientIp = getClientIp(request);
+  await enforceLoginRateLimit(env, clientIp);
+
   const body = await readJson(request);
   const password = String(body.password || "");
 
-  if (!env.ADMIN_PASSWORD || !env.TOKEN_SECRET) {
-    return json({ error: "Worker secret ayarları eksik." }, 500);
-  }
-
   const isValid = await timingSafeEqual(password, env.ADMIN_PASSWORD);
   if (!isValid) {
+    await recordFailedLogin(env, clientIp);
     return json({ error: "Admin şifresi yanlış." }, 401);
   }
+
+  await clearFailedLogins(env, clientIp);
 
   const now = Math.floor(Date.now() / 1000);
   const payload = {
@@ -79,12 +90,14 @@ async function handleAdminLogin(request, env) {
 }
 
 async function handleGetTimeline(env) {
+  assertEnv(env, { requireSecrets: false });
   const posts = await getPosts(env);
   posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   return json({ posts });
 }
 
 async function handleCreatePost(request, env) {
+  assertEnv(env);
   await requireAdmin(request, env);
 
   const body = await readJson(request);
@@ -112,6 +125,7 @@ async function handleCreatePost(request, env) {
 }
 
 async function handleDeletePost(request, env, url) {
+  assertEnv(env);
   await requireAdmin(request, env);
 
   const id = url.searchParams.get("id");
@@ -128,6 +142,18 @@ async function handleDeletePost(request, env, url) {
 
   await savePosts(env, nextPosts);
   return json({ ok: true });
+}
+
+function assertEnv(env, options = {}) {
+  const requireSecrets = options.requireSecrets !== false;
+
+  if (!env.TIMELINE_KV) {
+    throw new HttpError("TIMELINE_KV binding eksik. Cloudflare Worker'a KV namespace bağlanmalı.", 500);
+  }
+
+  if (requireSecrets && (!env.ADMIN_PASSWORD || !env.TOKEN_SECRET)) {
+    throw new HttpError("Worker secret ayarları eksik: ADMIN_PASSWORD ve TOKEN_SECRET gerekli.", 500);
+  }
 }
 
 async function requireAdmin(request, env) {
@@ -152,7 +178,7 @@ async function getPosts(env) {
 
   try {
     const posts = JSON.parse(raw);
-    return Array.isArray(posts) ? posts : [];
+    return Array.isArray(posts) ? posts.filter(isValidPost) : [];
   } catch {
     return [];
   }
@@ -160,6 +186,41 @@ async function getPosts(env) {
 
 async function savePosts(env, posts) {
   await env.TIMELINE_KV.put(POSTS_KEY, JSON.stringify(posts));
+}
+
+function isValidPost(post) {
+  return post && typeof post.id === "string" && typeof post.content === "string" && typeof post.createdAt === "string";
+}
+
+async function enforceLoginRateLimit(env, clientIp) {
+  const key = loginKey(clientIp);
+  const raw = await env.TIMELINE_KV.get(key);
+  if (!raw) return;
+
+  const data = JSON.parse(raw);
+  if (data.count >= MAX_LOGIN_ATTEMPTS) {
+    throw new HttpError("Çok fazla yanlış deneme var. Biraz sonra tekrar dene.", 429);
+  }
+}
+
+async function recordFailedLogin(env, clientIp) {
+  const key = loginKey(clientIp);
+  const raw = await env.TIMELINE_KV.get(key);
+  const data = raw ? JSON.parse(raw) : { count: 0 };
+  data.count += 1;
+  await env.TIMELINE_KV.put(key, JSON.stringify(data), { expirationTtl: LOGIN_WINDOW_SECONDS });
+}
+
+async function clearFailedLogins(env, clientIp) {
+  await env.TIMELINE_KV.delete(loginKey(clientIp));
+}
+
+function loginKey(clientIp) {
+  return `login-fail:${clientIp}`;
+}
+
+function getClientIp(request) {
+  return request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
 }
 
 async function readJson(request) {
