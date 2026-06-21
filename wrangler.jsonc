@@ -5,7 +5,9 @@
   "compatibility_date": "2026-06-21",
   "assets": {
     "directory": ".",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+    "not_found_handling": "single-page-application"
   },
   "kv_namespaces": [
     {
