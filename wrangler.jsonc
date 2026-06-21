@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "itsmdeniz",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-06-21",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "TIMELINE_KV",
+      "id": "BURAYA_TIMELINE_KV_ID_GELECEK"
+    }
+  ]
+}
